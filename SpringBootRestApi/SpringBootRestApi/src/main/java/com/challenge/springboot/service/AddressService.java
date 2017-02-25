@@ -6,9 +6,33 @@ import java.util.List;
 import com.challenge.springboot.model.ShopDetails;
 
 public interface AddressService {
-	String[] findById(String latitude, String longitude) throws Exception;
 	
-	void saveShopAddress(ShopDetails shopReq) throws Exception;
+	/**
+	 * Method Name <br>
+	 * findByLatitudeAndLongitude<br>
+	 * 25 February 2017 
+	 * 
+	 * This method is used to Fetch near by shops name by providing latitude and longitude.<br>
+	 * 
+	 * @param latitude
+	 * @param longitude
+	 * 
+	 * @return String[]
+	 * @throws Exception
+	 */
+	String[] findByLatitudeAndLongitude(String latitude, String longitude) throws Exception;
 	
-	List<ShopDetails> findAllUsers();
+	/**
+	 * Method Name <br>
+	 * addShopAddress<br>
+	 * 25 February 2017 
+	 * 
+	 * This method is used to add shop address in memeory.<br>
+	 * 
+	 * @param shopReq
+	 * @throws Exception
+	 */
+	void addShopAddress(ShopDetails shopReq) throws Exception;
+	
+	List<ShopDetails> findAllAddress();
 }
