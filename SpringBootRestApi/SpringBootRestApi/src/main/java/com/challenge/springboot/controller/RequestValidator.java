@@ -13,7 +13,7 @@ public class RequestValidator {
 		boolean isValidReqFlag=false;
 		if(null !=latitude && !latitude.isEmpty() 
 				&&
-				null !=longitude && longitude.isEmpty()){
+				null !=longitude && !longitude.isEmpty()){
 			isValidReqFlag=true;
 		} 
 
