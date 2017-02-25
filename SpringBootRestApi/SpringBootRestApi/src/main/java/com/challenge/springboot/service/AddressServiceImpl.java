@@ -66,7 +66,7 @@ public class AddressServiceImpl implements AddressService {
 			shopReq.getShopAddress().setShopLatitude(latLongs[0]);
 			shopReq.getShopAddress().setShopLongitude(latLongs[1]);
 		}
-		
+
 		shopDetails.add(shopReq);
 	}
 
@@ -78,34 +78,44 @@ public class AddressServiceImpl implements AddressService {
 	private String[] getLatLongPositions(String address) throws Exception
 	{
 		int responseCode = 0;
-		String api = "http://maps.googleapis.com/maps/api/geocode/xml?address=" + URLEncoder.encode(address, "UTF-8") + "&sensor=true";
-		logger.info("URL for get LatLongPositions : "+api);
-		
-		URL url = new URL(api);
-		HttpURLConnection httpConnection = (HttpURLConnection)url.openConnection();
-		httpConnection.connect();
-		responseCode = httpConnection.getResponseCode();
-		if(responseCode == 200)
-		{
-			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();;
-			Document document = builder.parse(httpConnection.getInputStream());
-			XPathFactory xPathfactory = XPathFactory.newInstance();
-			XPath xpath = xPathfactory.newXPath();
-			XPathExpression expr = xpath.compile("/GeocodeResponse/status");
-			String status = (String)expr.evaluate(document, XPathConstants.STRING);
-			if(status.equals("OK"))
+		HttpURLConnection httpConnection = null;
+		try{
+			String api = "http://maps.googleapis.com/maps/api/geocode/xml?address=" + URLEncoder.encode(address, "UTF-8") + "&sensor=true";
+			logger.info("URL for get LatLongPositions : "+api);
+
+			URL url = new URL(api);
+			httpConnection = (HttpURLConnection)url.openConnection();
+			httpConnection.connect();
+			responseCode = httpConnection.getResponseCode();
+			if(responseCode == 200)
 			{
-				expr = xpath.compile("//geometry/location/lat");
-				String latitude = (String)expr.evaluate(document, XPathConstants.STRING);
-				expr = xpath.compile("//geometry/location/lng");
-				String longitude = (String)expr.evaluate(document, XPathConstants.STRING);
-				return new String[] {latitude, longitude};
+				DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();;
+				Document document = builder.parse(httpConnection.getInputStream());
+				XPathFactory xPathfactory = XPathFactory.newInstance();
+				XPath xpath = xPathfactory.newXPath();
+				XPathExpression expr = xpath.compile("/GeocodeResponse/status");
+				String status = (String)expr.evaluate(document, XPathConstants.STRING);
+				if(status.equals("OK"))
+				{
+					expr = xpath.compile("//geometry/location/lat");
+					String latitude = (String)expr.evaluate(document, XPathConstants.STRING);
+					expr = xpath.compile("//geometry/location/lng");
+					String longitude = (String)expr.evaluate(document, XPathConstants.STRING);
+					return new String[] {latitude, longitude};
+				}
+				else
+				{
+					throw new Exception("Error from the API - response status: "+status);
+				}
 			}
-			else
-			{
-				throw new Exception("Error from the API - response status: "+status);
+		}catch (Exception e) {
+			throw new Exception(e);
+		}finally{
+			if(null!=httpConnection){
+				httpConnection.disconnect();
 			}
 		}
+		
 		return null;
 	}
 
@@ -119,32 +129,41 @@ public class AddressServiceImpl implements AddressService {
 	private String[] getAddressByLatLongPositions(String latitude, String longitude) throws Exception
 	{
 		int responseCode = 0;
-		String api = "http://api.geonames.org/findNearbyPOIsOSM?lat=" + URLEncoder.encode(latitude, "UTF-8")+"&lng="+URLEncoder.encode(longitude, "UTF-8") + "&username=demo";
-		logger.info("URL for getting Address list by latitude and longitude : "+api);
-		
-		URL url = new URL(api);
-		HttpURLConnection httpConnection = (HttpURLConnection)url.openConnection();
-		httpConnection.connect();
-		responseCode = httpConnection.getResponseCode();
+		HttpURLConnection httpConnection = null;
+		try{
+			String api = "http://api.geonames.org/findNearbyPOIsOSM?lat=" + URLEncoder.encode(latitude, "UTF-8")+"&lng="+URLEncoder.encode(longitude, "UTF-8") + "&username=demo";
+			logger.info("URL for getting Address list by latitude and longitude : "+api);
 
-		if(responseCode == 200){
-			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();;
-			Document document = builder.parse(httpConnection.getInputStream());
+			URL url = new URL(api);
+			httpConnection = (HttpURLConnection)url.openConnection();
+			httpConnection.connect();
+			responseCode = httpConnection.getResponseCode();
 
-			NodeList nList = document.getElementsByTagName("poi");
-			String shopsList[]=new String[nList.getLength()];
-			
-			for (int temp = 0; temp < nList.getLength(); temp++) {
-				Node nNode = nList.item(temp);
-				logger.info("\nCurrent Element :" + nNode.getNodeName());
+			if(responseCode == 200){
+				DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();;
+				Document document = builder.parse(httpConnection.getInputStream());
 
-				if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-					Element eElement = (Element) nNode;
-					logger.info("Name : "+ eElement.getElementsByTagName("name").item(0).getTextContent());
-					shopsList[temp]=eElement.getElementsByTagName("name").item(0).getTextContent();
+				NodeList nList = document.getElementsByTagName("poi");
+				String shopsList[]=new String[nList.getLength()];
+
+				for (int temp = 0; temp < nList.getLength(); temp++) {
+					Node nNode = nList.item(temp);
+					logger.info("\nCurrent Element :" + nNode.getNodeName());
+
+					if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+						Element eElement = (Element) nNode;
+						logger.info("Name : "+ eElement.getElementsByTagName("name").item(0).getTextContent());
+						shopsList[temp]=eElement.getElementsByTagName("name").item(0).getTextContent();
+					}
 				}
+				return shopsList;
 			}
-			return shopsList;
+		}catch (Exception e) {
+			throw new Exception(e);
+		}finally{
+			if(null!=httpConnection){
+				httpConnection.disconnect();
+			}
 		}
 		return null;
 	}
