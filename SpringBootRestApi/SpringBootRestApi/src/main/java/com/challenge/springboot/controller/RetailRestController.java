@@ -1,5 +1,7 @@
 package com.challenge.springboot.controller;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -116,5 +118,37 @@ public class RetailRestController extends RequestValidator {
 
 		return new ResponseEntity<String[]>(shopNames, HttpStatus.OK);
 	}
+	
+	// -------------------Fetch all added address-------------------------------------------
+
+		/**
+		 * Method Name <br>
+		 * findAllAddress<br>
+		 * 25 February 2017 
+		 * 
+		 * This method is used to Fetch all added address.<br>
+		 * 
+		 * @return
+		 */
+		@RequestMapping(value = "/findAll/", method = RequestMethod.GET)
+		public ResponseEntity<?> findAllAddress() {
+
+			logger.info("Fetching all Shops adderss");
+			List<ShopDetails> shopList = null;
+
+			try {
+				shopList = addressService.findAllAddress();
+				if (shopList == null || shopList.isEmpty()) {
+					logger.error("No shops find.");
+
+					return new ResponseEntity<CustomErrorType>(new CustomErrorType("No shops find."), HttpStatus.NOT_FOUND);
+				}
+			} catch (Exception e) {
+				logger.error(e.getMessage());
+				return new ResponseEntity<CustomErrorType>(new CustomErrorType(e.getMessage()), HttpStatus.NOT_FOUND);
+			}
+
+			return new ResponseEntity<List<ShopDetails>>(shopList, HttpStatus.OK);
+		}
 	
 }
