@@ -150,10 +150,12 @@ public class AddressServiceImpl implements AddressService {
 	}
 
 
+	/* (non-Javadoc)
+	 * @see com.challenge.springboot.service.AddressService#findAllAddress()
+	 */
 	@Override
 	public List<ShopDetails> findAllAddress() {
-		// TODO Auto-generated method stub
-		return null;
+		return shopDetails;
 	}
 
 }
