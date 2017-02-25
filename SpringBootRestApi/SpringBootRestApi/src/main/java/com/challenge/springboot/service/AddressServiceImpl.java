@@ -1,6 +1,5 @@
 package com.challenge.springboot.service;
 
-
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -27,30 +26,25 @@ import com.challenge.springboot.model.ShopDetails;
 @Service("addressService")
 public class AddressServiceImpl implements AddressService {
 	public static final Logger logger = LoggerFactory.getLogger(AddressServiceImpl.class);
-	
+
 	private static List<ShopDetails> shopDetails=new ArrayList<ShopDetails>();
 
+	/* (non-Javadoc)
+	 * @see com.challenge.springboot.service.AddressService#findByLatitudeAndLongitude(java.lang.String, java.lang.String)
+	 */
 	@Override
-	public String[] findById(String latitude, String longitude) throws Exception {
+	public String[] findByLatitudeAndLongitude(String latitude, String longitude) throws Exception {
 
 		String shopList[] = this.getAddressByLatLongPositions(latitude, longitude);
+		logger.info("Shop Names for provided latitude and longitude :: "+shopList);
 		return shopList;
 	}
 
-
-	@Override
-	public List<ShopDetails> findAllUsers() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-
 	/* (non-Javadoc)
-	 * @see com.challenge.springboot.service.AddressService#saveShopAddress(com.challenge.springboot.model.ShopDetails)
+	 * @see com.challenge.springboot.service.AddressService#addShopAddress(com.challenge.springboot.model.ShopDetails)
 	 */
 	@Override
-	public void saveShopAddress(ShopDetails shopReq) throws Exception {
+	public void addShopAddress(ShopDetails shopReq) throws Exception {
 		StringBuilder address= new StringBuilder();
 
 		if(null !=shopReq.getShopName()){
@@ -65,13 +59,15 @@ public class AddressServiceImpl implements AddressService {
 		}
 
 		String latLongs[] = this.getLatLongPositions(address.toString());
-		System.out.println("Latitude: "+latLongs[0]+" and Longitude: "+latLongs[1]);
 
-		shopReq.getShopAddress().setShopLatitude(latLongs[0]);
-		shopReq.getShopAddress().setShopLongitude(latLongs[1]);
+		if(null !=latLongs){
+			logger.info("Latitude: "+latLongs[0]+" and Longitude: "+latLongs[1]);
 
+			shopReq.getShopAddress().setShopLatitude(latLongs[0]);
+			shopReq.getShopAddress().setShopLongitude(latLongs[1]);
+		}
+		
 		shopDetails.add(shopReq);
-		System.out.println(shopDetails.size());
 	}
 
 	/**
@@ -83,7 +79,8 @@ public class AddressServiceImpl implements AddressService {
 	{
 		int responseCode = 0;
 		String api = "http://maps.googleapis.com/maps/api/geocode/xml?address=" + URLEncoder.encode(address, "UTF-8") + "&sensor=true";
-		System.out.println("URL : "+api);
+		logger.info("URL for get LatLongPositions : "+api);
+		
 		URL url = new URL(api);
 		HttpURLConnection httpConnection = (HttpURLConnection)url.openConnection();
 		httpConnection.connect();
@@ -123,36 +120,40 @@ public class AddressServiceImpl implements AddressService {
 	{
 		int responseCode = 0;
 		String api = "http://api.geonames.org/findNearbyPOIsOSM?lat=" + URLEncoder.encode(latitude, "UTF-8")+"&lng="+URLEncoder.encode(longitude, "UTF-8") + "&username=demo";
-		System.out.println("URL : "+api);
+		logger.info("URL for getting Address list by latitude and longitude : "+api);
+		
 		URL url = new URL(api);
 		HttpURLConnection httpConnection = (HttpURLConnection)url.openConnection();
 		httpConnection.connect();
 		responseCode = httpConnection.getResponseCode();
 
-		if(responseCode == 200)
-		{
-
+		if(responseCode == 200){
 			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();;
 			Document document = builder.parse(httpConnection.getInputStream());
 
 			NodeList nList = document.getElementsByTagName("poi");
 			String shopsList[]=new String[nList.getLength()];
+			
 			for (int temp = 0; temp < nList.getLength(); temp++) {
-
 				Node nNode = nList.item(temp);
-
-				System.out.println("\nCurrent Element :" + nNode.getNodeName());
+				logger.info("\nCurrent Element :" + nNode.getNodeName());
 
 				if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-
 					Element eElement = (Element) nNode;
-					System.out.println("Name : "+ eElement.getElementsByTagName("name").item(0).getTextContent());
+					logger.info("Name : "+ eElement.getElementsByTagName("name").item(0).getTextContent());
 					shopsList[temp]=eElement.getElementsByTagName("name").item(0).getTextContent();
 				}
 			}
 			return shopsList;
-
 		}
 		return null;
 	}
+
+
+	@Override
+	public List<ShopDetails> findAllAddress() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
