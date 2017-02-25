@@ -34,5 +34,14 @@ public interface AddressService {
 	 */
 	void addShopAddress(ShopDetails shopReq) throws Exception;
 	
+	/**
+	 * Method Name <br>
+	 * findAllAddress<br>
+	 * 25 February 2017 
+	 * 
+	 * This method is used to Fetch all added address.<br>
+	 * 
+	 * @return List<ShopDetails>
+	 */
 	List<ShopDetails> findAllAddress();
 }
