@@ -5,6 +5,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import com.challenge.springboot.model.ShopDetails;
 import com.challenge.springboot.service.AddressService;
@@ -51,7 +53,7 @@ public class RetailRestController extends RequestValidator {
 	 * @return
 	 */
 	@RequestMapping(value = "/shop/", method = RequestMethod.POST)
-	public ResponseEntity<?> createShopAddress(@RequestBody ShopDetails addressReq) {
+	public ResponseEntity<?> createShopAddress(@RequestBody ShopDetails addressReq,UriComponentsBuilder ucBuilder) {
 		logger.info("Creating Shop Address : ", addressReq.toString());
 
 		if (!this.isRequestValid(addressReq)) {
@@ -73,9 +75,11 @@ public class RetailRestController extends RequestValidator {
 			logger.error(e.getMessage());
 			return new ResponseEntity<CustomErrorType>(new CustomErrorType(e.getMessage()), HttpStatus.NOT_FOUND);
 		}
-
-
-		return new ResponseEntity<ShopDetails>(addressReq, HttpStatus.CREATED);
+		//http://localhost:8080/SpringBootRestApi/api/shopNames/?latitude=18.5651450&longitude=73.9181790
+		HttpHeaders headers = new HttpHeaders();
+		headers.setLocation(ucBuilder.path("/api/shopNames/{shopName}").buildAndExpand(addressReq.getShopName()).toUri());
+		
+		return new ResponseEntity<ShopDetails>(addressReq,headers, HttpStatus.CREATED);
 	}
 
 
