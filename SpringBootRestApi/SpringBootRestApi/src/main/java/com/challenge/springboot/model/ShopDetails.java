@@ -14,6 +14,9 @@ public void setShopName(String shopName) {
 }
 
 public ShopAddress getShopAddress() {
+	if(shopAddress==null){
+		this.shopAddress=new ShopAddress();
+	}
 	return shopAddress;
 }
 public void setShopAddress(ShopAddress shopAddress) {

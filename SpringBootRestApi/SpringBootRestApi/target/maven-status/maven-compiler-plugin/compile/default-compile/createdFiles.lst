@@ -1,7 +1,8 @@
 com\challenge\springboot\controller\RetailRestController.class
 com\challenge\springboot\util\CustomErrorType.class
 com\challenge\springboot\SpringBootRestApiApp.class
+com\challenge\springboot\controller\RequestValidator.class
 com\challenge\springboot\model\ShopAddress.class
+com\challenge\springboot\service\AddressService.class
 com\challenge\springboot\model\ShopDetails.class
 com\challenge\springboot\service\AddressServiceImpl.class
-com\challenge\springboot\service\AddressService.class
